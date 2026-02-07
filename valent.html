@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Will you be my Valentine?</title>
+
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #a855f7;
+      --secondary: #ec4899;
+      --accent: #f472b6;
+      --bg-start: #1e1b4b;
+      --bg-end: #581c87;
+      --dark-start: #0f0f23;
+      --dark-end: #1a1a2e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      position: relative;
+      padding: 20px;
+      transition: background 1.5s ease;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, var(--dark-start) 0%, var(--dark-end) 100%);
+    }
+
+    /* STORM CLOUDS */
+    .clouds {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    body.dark-mode .clouds {
+      opacity: 1;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(40, 40, 60, 0.7);
+      border-radius: 100px;
+      filter: blur(30px);
+      animation: driftCloud 20s linear infinite;
+    }
+
+    @keyframes driftCloud {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(100vw); }
+    }
+
+    /* LIGHTNING */
+    .lightning {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0;
+      background: white;
+    }
+
+    .lightning.flash {
+      animation: flash 0.3s ease;
+    }
+
+    @keyframes flash {
+      0%, 100% { opacity: 0; }
+      20%, 60% { opacity: 0.8; }
+      40%, 80% { opacity: 0; }
+    }
+
+    /* RAIN */
+    .rain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    body.dark-mode .rain {
+      opacity: 0.5;
+    }
+
+    .raindrop {
+      position: absolute;
+      width: 2px;
+      height: 20px;
+      background: linear-gradient(transparent, rgba(255, 255, 255, 0.6));
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      from {
+        transform: translateY(-100vh);
+      }
+      to {
+        transform: translateY(100vh);
+      }
+    }
+
+    /* FLOATING HEARTS BACKGROUND */
+    .floating-hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -50px;
+      font-size: 24px;
+      opacity: 0.6;
+      animation: float 8s ease-in infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.6;
+      }
+      50% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* CONFETTI CANVAS */
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* MAIN CARD */
+    .card {
+      position: relative;
+      z-index: 10;
+      width: min(600px, 95vw);
+      padding: 40px 30px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 30px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      box-shadow:
+        0 25px 50px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      text-align: center;
+      transition: all 1s ease;
+    }
+
+    body.dark-mode .card {
+      background: rgba(20, 20, 40, 0.4);
+      border-color: rgba(100, 100, 120, 0.3);
+      box-shadow:
+        0 25px 50px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* GIF CONTAINER */
+    .gif-container {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 20px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .gif-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gif-container.shake {
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px) rotate(-5deg); }
+      75% { transform: translateX(10px) rotate(5deg); }
+    }
+
+    /* TITLE */
+    h1 {
+      font-size: clamp(24px, 5vw, 36px);
+      margin: 20px 0;
+      color: #fff;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .subtitle {
+      font-size: clamp(14px, 3vw, 16px);
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 30px;
+      font-weight: 400;
+    }
+
+    /* BUTTON ZONE */
+    .button-zone {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      margin: 20px 0;
+      touch-action: none;
+    }
+
+    button {
+      position: absolute;
+      top: 50%;
+      padding: 18px 40px;
+      font-size: clamp(16px, 3vw, 20px);
+      font-weight: 700;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #yesBtn {
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+      color: #fff;
+      transform-origin: center;
+      z-index: 2;
+    }
+
+    #yesBtn:hover {
+      box-shadow: 0 15px 40px rgba(236, 72, 153, 0.5);
+      transform: translate(-50%, -50%) translateY(-2px);
+    }
+
+    /* CLONED YES BUTTONS */
+    .yes-clone {
+      position: fixed !important;
+      padding: 18px 40px;
+      font-size: clamp(16px, 3vw, 20px);
+      font-weight: 700;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      user-select: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 1000;
+      animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      pointer-events: auto;
+    }
+
+    .yes-clone:hover {
+      box-shadow: 0 15px 40px rgba(236, 72, 153, 0.6);
+      transform: scale(1.05);
+    }
+
+    #noBtn {
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    #noBtn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* HINT */
+    .hint {
+      margin-top: 15px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .hint-emoji {
+      font-size: 18px;
+      animation: pulse 1.5s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* ATTEMPT COUNTER */
+    .attempt-counter {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #f472b6;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .attempt-counter.show {
+      opacity: 1;
+    }
+
+    /* RESULT */
+    .result {
+      display: none;
+      animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .result h2 {
+      font-size: clamp(32px, 6vw, 48px);
+      margin: 20px 0;
+      color: #fff;
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #fbbf24, #f472b6, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .result .celebration-gif {
+      width: min(350px, 90vw);
+      height: auto;
+      margin: 20px auto;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .result p {
+      font-size: clamp(16px, 3vw, 20px);
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* SPARKLES */
+    .sparkle {
+      position: absolute;
+      pointer-events: none;
+      font-size: 20px;
+      animation: sparkleFloat 1s ease-out forwards;
+    }
+
+    @keyframes sparkleFloat {
+      0% {
+        transform: translateY(0) scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-50px) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .card {
+        padding: 30px 20px;
+      }
+
+      .gif-container {
+        width: 180px;
+        height: 180px;
+      }
+
+      button {
+        padding: 14px 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Floating Hearts Background -->
+  <div class="floating-hearts" id="floatingHearts"></div>
+
+  <!-- Storm Clouds -->
+  <div class="clouds" id="clouds"></div>
+
+  <!-- Rain -->
+  <div class="rain" id="rain"></div>
+
+  <!-- Lightning Flash -->
+  <div class="lightning" id="lightning"></div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <main class="card">
+    <!-- Animated GIF -->
+    <div class="gif-container" id="gifContainer">
+      <img
+        id="mainGif"
+        src="https://media.giphy.com/media/WK7omsLop0431tZjXb/giphy.gif"
+        alt="Cute pleading"
+      />
+    </div>
+
+    <h1 id="mainTitle">Will you be my Valentine? 💕</h1>
+    <p class="subtitle" id="subtitle">Choose wisely... 😏</p>
+
+    <section class="button-zone" id="zone">
+      <button id="yesBtn">Yes! 💖</button>
+      <button id="noBtn">No...</button>
+    </section>
+
+    <div class="hint" id="hint">
+      <span class="hint-emoji">👀</span>
+      <span id="hintText">The "No" button is feeling a bit shy...</span>
+    </div>
+
+    <div class="attempt-counter" id="attemptCounter">
+      Attempts to say No: <span id="attemptCount">0</span> 😂
+    </div>
+
+    <section class="result" id="result">
+      <h2 id="successTitle">YESSS! 🎉✨🎊</h2>
+      <img
+        class="celebration-gif"
+        src="https://media.giphy.com/media/artj92V8o75VPL7AeQ/giphy.gif"
+        alt="Celebration"
+      />
+      <p id="successMessage">I knew you'd say yes! 💕<br>Best Valentine ever! 🥰</p>
+    </section>
+  </main>
+
+  <script>
+    const zone = document.getElementById("zone");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const result = document.getElementById("result");
+    const hint = document.getElementById("hint");
+    const hintText = document.getElementById("hintText");
+    const mainTitle = document.getElementById("mainTitle");
+    const subtitle = document.getElementById("subtitle");
+    const gifContainer = document.getElementById("gifContainer");
+    const mainGif = document.getElementById("mainGif");
+    const attemptCounter = document.getElementById("attemptCounter");
+    const attemptCount = document.getElementById("attemptCount");
+    const cloudsContainer = document.getElementById("clouds");
+    const rainContainer = document.getElementById("rain");
+    const lightning = document.getElementById("lightning");
+
+    let attempts = 0;
+    let yesClones = [];
+
+    // Hint messages for different attempt levels
+    const hintMessages = [
+      "The \"No\" button is feeling a bit shy...",
+      "It's okay, take your time... 😊",
+      "The \"Yes\" button is multiplying... 👀",
+      "Resistance is futile... 💕",
+      "Look at all these options! 😏",
+      "Just click \"Yes\" already! 😅",
+      "The storm is coming... ⛈️",
+      "Why are you doing this? 😢",
+      "Please... I'm begging you... 🥺",
+      "The universe wants you to say yes! 💫",
+      "I'm running out of GIFs here... 😭"
+    ];
+
+    // GIF collection for different states
+    const gifs = {
+      pleading: [
+        "https://media.giphy.com/media/MDXz42HQVRjKJTO1se/giphy.gif", // Pleading eyes
+        "https://media.giphy.com/media/VbnUQpnihPSIgIXuZv/giphy.gif", // Cute cat pleading
+        "https://media.giphy.com/media/uw0KpagtwEJtC/giphy.gif" // Puppy eyes
+      ],
+      desperate: [
+        "https://media.giphy.com/media/L95W4wv8nnb9K/giphy.gif", // Cat desperate
+        "https://media.giphy.com/media/OPU6wzx8JrHna/giphy.gif" // Begging
+      ],
+      crying: [
+        "https://media.giphy.com/media/ROF8OQvDmxytW/giphy.gif", // Crying
+        "https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif" // Sad crying
+      ],
+      celebration: "https://media.giphy.com/media/g5R9dok94mrIvplmZd/giphy.gif" // Celebration fireworks
+    };
+
+    /* ---------- FLOATING HEARTS ---------- */
+    function createFloatingHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.textContent = ['💕', '💖', '💗', '💝', '💓'][Math.floor(Math.random() * 5)];
+      heart.style.left = Math.random() * 100 + '%';
+      heart.style.animationDuration = (5 + Math.random() * 5) + 's';
+      heart.style.animationDelay = Math.random() * 2 + 's';
+      document.getElementById('floatingHearts').appendChild(heart);
+
+      setTimeout(() => heart.remove(), 10000);
+    }
+
+    setInterval(createFloatingHeart, 800);
+
+    /* ---------- STORM CLOUDS ---------- */
+    function createStormClouds() {
+      cloudsContainer.innerHTML = '';
+      for (let i = 0; i < 8; i++) {
+        const cloud = document.createElement('div');
+        cloud.className = 'cloud';
+        cloud.style.width = (150 + Math.random() * 200) + 'px';
+        cloud.style.height = (80 + Math.random() * 100) + 'px';
+        cloud.style.top = (Math.random() * 60) + '%';
+        cloud.style.left = (Math.random() * 100) + '%';
+        cloud.style.animationDelay = (Math.random() * -20) + 's';
+        cloud.style.animationDuration = (15 + Math.random() * 10) + 's';
+        cloudsContainer.appendChild(cloud);
+      }
+    }
+
+    createStormClouds();
+
+    /* ---------- RAIN ---------- */
+    function createRain() {
+      rainContainer.innerHTML = '';
+      for (let i = 0; i < 100; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'raindrop';
+        drop.style.left = Math.random() * 100 + '%';
+        drop.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+        drop.style.animationDelay = Math.random() * 2 + 's';
+        rainContainer.appendChild(drop);
+      }
+    }
+
+    createRain();
+
+    /* ---------- LIGHTNING FLASH ---------- */
+    function triggerLightning() {
+      lightning.classList.add('flash');
+      setTimeout(() => lightning.classList.remove('flash'), 300);
+    }
+
+    /* ---------- DARK MODE ---------- */
+    function enableDarkMode() {
+      document.body.classList.add('dark-mode');
+      mainTitle.textContent = "Please... just say yes? 🥺⛈️";
+      subtitle.textContent = "The storm won't stop until you do...";
+      triggerLightning();
+      setTimeout(triggerLightning, 800);
+      setTimeout(triggerLightning, 2000);
+    }
+
+    /* ---------- CONFETTI ---------- */
+    const confettiCanvas = document.getElementById("confettiCanvas");
+
+    function resizeConfettiCanvas() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      confettiCanvas.width = Math.floor(window.innerWidth * dpr);
+      confettiCanvas.height = Math.floor(window.innerHeight * dpr);
+    }
+
+    resizeConfettiCanvas();
+    window.addEventListener("resize", resizeConfettiCanvas);
+
+    const confettiInstance = confetti.create(confettiCanvas, {
+      resize: false,
+      useWorker: true
+    });
+
+    function fullScreenConfetti() {
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confettiInstance({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#ec4899', '#f472b6', '#a855f7', '#fbbf24']
+        });
+        confettiInstance({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#ec4899', '#f472b6', '#a855f7', '#fbbf24']
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      })();
+
+      setTimeout(() => {
+        confettiInstance({
+          particleCount: 200,
+          spread: 120,
+          startVelocity: 60,
+          origin: { y: 0.6 },
+          colors: ['#ec4899', '#f472b6', '#a855f7', '#fbbf24']
+        });
+      }, 500);
+    }
+
+    /* ---------- SPARKLE EFFECT ---------- */
+    function createSparkle(x, y) {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      sparkle.textContent = '✨';
+      sparkle.style.left = x + 'px';
+      sparkle.style.top = y + 'px';
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 1000);
+    }
+
+    /* ---------- SPAWN YES BUTTON CLONES ---------- */
+    function spawnYesClone() {
+      const clone = document.createElement('button');
+      clone.className = 'yes-clone';
+      clone.textContent = ['Yes! 💖', 'YES! 💕', 'Yes Please! 💗', 'YES!! 🥰'][Math.floor(Math.random() * 4)];
+
+      // Random position on screen
+      const x = Math.random() * (window.innerWidth - 200);
+      const y = Math.random() * (window.innerHeight - 80);
+
+      clone.style.left = x + 'px';
+      clone.style.top = y + 'px';
+
+      clone.addEventListener('click', handleYesClick);
+      document.body.appendChild(clone);
+      yesClones.push(clone);
+
+      // Add sparkle effect
+      createSparkle(x + 100, y + 40);
+    }
+
+    /* ---------- NO BUTTON RUNS AWAY ---------- */
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function changeGif() {
+      attempts++;
+      attemptCount.textContent = attempts;
+      attemptCounter.classList.add('show');
+
+      // Update hint text
+      const hintIndex = Math.min(attempts - 1, hintMessages.length - 1);
+      hintText.textContent = hintMessages[hintIndex];
+
+      // Shake the gif container
+      gifContainer.classList.add('shake');
+      setTimeout(() => gifContainer.classList.remove('shake'), 500);
+
+      // Spawn Yes button clones (start after 3 attempts)
+      if (attempts >= 3 && attempts <= 15) {
+        spawnYesClone();
+      }
+
+      // Trigger dark mode at 7 attempts
+      if (attempts === 7) {
+        enableDarkMode();
+      }
+
+      // Additional lightning flashes in dark mode
+      if (attempts > 7 && Math.random() > 0.6) {
+        triggerLightning();
+      }
+
+      // Change GIF based on attempts
+      if (attempts > 10) {
+        const randomGif = gifs.crying[Math.floor(Math.random() * gifs.crying.length)];
+        mainGif.src = randomGif;
+        noBtn.textContent = "Don't...";
+      } else if (attempts > 7) {
+        noBtn.textContent = "Please No...";
+      } else if (attempts > 5) {
+        const randomGif = gifs.desperate[Math.floor(Math.random() * gifs.desperate.length)];
+        mainGif.src = randomGif;
+        noBtn.textContent = "No??";
+      } else if (attempts > 2) {
+        const randomGif = gifs.pleading[Math.floor(Math.random() * gifs.pleading.length)];
+        mainGif.src = randomGif;
+      }
+
+      // Spawn extra clones at high attempts
+      if (attempts > 10) {
+        spawnYesClone();
+      }
+    }
+
+    function moveNo(px, py) {
+      const z = zone.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+
+      let dx = (b.left + b.width / 2) - px;
+      let dy = (b.top + b.height / 2) - py;
+      let mag = Math.hypot(dx, dy) || 1;
+      dx /= mag;
+      dy /= mag;
+
+      let newLeft = (b.left - z.left) + dx * 160;
+      let newTop = (b.top - z.top) + dy * 160;
+
+      newLeft = clamp(newLeft, 0, z.width - b.width);
+      newTop = clamp(newTop, 0, z.height - b.height);
+
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top = newTop + "px";
+      noBtn.style.transform = "none";
+
+      changeGif();
+    }
+
+    let lastMoveTime = 0;
+    zone.addEventListener("pointermove", e => {
+      const now = Date.now();
+      if (now - lastMoveTime < 100) return; // Throttle
+      lastMoveTime = now;
+
+      const b = noBtn.getBoundingClientRect();
+      const d = Math.hypot(
+        (b.left + b.width / 2) - e.clientX,
+        (b.top + b.height / 2) - e.clientY
+      );
+      if (d < 150) {
+        moveNo(e.clientX, e.clientY);
+      }
+    });
+
+    noBtn.addEventListener("click", e => {
+      e.preventDefault();
+      changeGif();
+    });
+
+    /* ---------- YES CLICK ---------- */
+    function handleYesClick() {
+      zone.style.display = "none";
+      hint.style.display = "none";
+      attemptCounter.style.display = "none";
+      gifContainer.style.display = "none";
+      mainTitle.style.display = "none";
+      subtitle.style.display = "none";
+      result.style.display = "block";
+
+      // Remove dark mode and restore brightness
+      document.body.classList.remove('dark-mode');
+      document.body.style.background = 'linear-gradient(135deg, #fbbf24 0%, #ec4899 50%, #a855f7 100%)';
+
+      // Remove all cloned buttons
+      yesClones.forEach(clone => clone.remove());
+      yesClones = [];
+
+      // Customize message based on attempts
+      const successTitle = document.getElementById('successTitle');
+      const successMessage = document.getElementById('successMessage');
+
+      if (attempts === 0) {
+        successTitle.textContent = "AWWW! 🥰💕";
+        successMessage.innerHTML = "You said yes right away! 💖<br>You're the sweetest Valentine ever! 😍";
+      } else if (attempts <= 3) {
+        successTitle.textContent = "YESSS! 🎉✨";
+        successMessage.innerHTML = "I knew you'd say yes! 💕<br>You're perfect! 🥰";
+      } else if (attempts <= 6) {
+        successTitle.textContent = "FINALLY! 🎊💖";
+        successMessage.innerHTML = `Took you ${attempts} tries... 😏<br>But I'm so happy you said yes! 💕`;
+      } else if (attempts <= 9) {
+        successTitle.textContent = "THE STORM CLEARED! 🌈⛈️💖";
+        successMessage.innerHTML = `You survived the storm! 😅<br>After ${attempts} attempts, you made the right choice! 💕`;
+      } else if (attempts <= 15) {
+        successTitle.textContent = `HUHHHH ${attempts} TRIES?! 😂💖`;
+        successMessage.innerHTML = `Really made me work for it! 🙈<br>But I'm sooo happy you said yes! 🥰💕`;
+      } else {
+        successTitle.textContent = `AFTER ${attempts} ATTEMPTS!! 🤯💖`;
+        successMessage.innerHTML = `You really tested my patience! 😭😂<br>But it was worth it! You're amazing! 🌟💕`;
+      }
+
+      resizeConfettiCanvas();
+      fullScreenConfetti();
+
+      // Additional confetti bursts
+      setTimeout(() => fullScreenConfetti(), 1500);
+      setTimeout(() => fullScreenConfetti(), 3000);
+    }
+
+    yesBtn.addEventListener("click", handleYesClick);
+  </script>
+</body>
+</html>
