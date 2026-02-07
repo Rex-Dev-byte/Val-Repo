@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Will you be my Valentine?</title>
+  <title>Nandu will you be my Valentine?</title>
 
   <!-- Confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -452,7 +452,7 @@
       />
     </div>
 
-    <h1 id="mainTitle">Will you be my Valentine? 💕</h1>
+    <h1 id="mainTitle">Nandu Will you be my Valentine? 💕</h1>
     <p class="subtitle" id="subtitle">Choose wisely... 😏</p>
 
     <section class="button-zone" id="zone">
@@ -473,7 +473,7 @@
       <h2 id="successTitle">YESSS! 🎉✨🎊</h2>
       <img
         class="celebration-gif"
-        src="https://media.giphy.com/media/artj92V8o75VPL7AeQ/giphy.gif"
+        src="https://media.giphy.com/media/TjSPQgowhhJdHgvnwA/giphy.gif"
         alt="Celebration"
       />
       <p id="successMessage">I knew you'd say yes! 💕<br>Best Valentine ever! 🥰</p>
@@ -805,22 +805,22 @@
 
       if (attempts === 0) {
         successTitle.textContent = "AWWW! 🥰💕";
-        successMessage.innerHTML = "You said yes right away! 💖<br>You're the sweetest Valentine ever! 😍";
+        successMessage.innerHTML = "You said yes right away! 💖<br>You're the sweetest Valentine ever! NOW GIB KISSHI 😍";
       } else if (attempts <= 3) {
         successTitle.textContent = "YESSS! 🎉✨";
-        successMessage.innerHTML = "I knew you'd say yes! 💕<br>You're perfect! 🥰";
+        successMessage.innerHTML = "I knew you'd say yes! 💕<br>You're perfect! NOW GIB KISSHI LIKE RN! 🥰";
       } else if (attempts <= 6) {
         successTitle.textContent = "FINALLY! 🎊💖";
-        successMessage.innerHTML = `Took you ${attempts} tries... 😏<br>But I'm so happy you said yes! 💕`;
+        successMessage.innerHTML = `Took you ${attempts} tries... 😏<br>But I'm so happy you said yes! NOW GIB KISSHI LAGECH 💕`;
       } else if (attempts <= 9) {
         successTitle.textContent = "THE STORM CLEARED! 🌈⛈️💖";
-        successMessage.innerHTML = `You survived the storm! 😅<br>After ${attempts} attempts, you made the right choice! 💕`;
+        successMessage.innerHTML = `You survived the storm! 😅<br>After ${attempts} attempts, you made the right choice! NOW GIB ${attempts} KISSHI 💕`;
       } else if (attempts <= 15) {
         successTitle.textContent = `HUHHHH ${attempts} TRIES?! 😂💖`;
-        successMessage.innerHTML = `Really made me work for it! 🙈<br>But I'm sooo happy you said yes! 🥰💕`;
+        successMessage.innerHTML = `Really made me work for it! 🙈<br>But I'm sooo happy you said yes! NOW YOU ABSOLUTELY HAVE TO GIB ME ${attempts} KISSHI 🥰💕`;
       } else {
         successTitle.textContent = `AFTER ${attempts} ATTEMPTS!! 🤯💖`;
-        successMessage.innerHTML = `You really tested my patience! 😭😂<br>But it was worth it! You're amazing! 🌟💕`;
+        successMessage.innerHTML = `You really tested my patience! 😭😂<br>But it was worth it! You're amazing 🌟💕! ABHI ITNA HARD TO GET PLAY KARNE KE BAAD I DESERVE ${attempts} KISSHI or else 🔪 `;
       }
 
       resizeConfettiCanvas();
